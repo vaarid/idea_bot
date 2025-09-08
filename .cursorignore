@@ -1,0 +1,11 @@
+﻿# Игнорируемые файлы для Cursor IDE
+.env
+*.db
+*.sqlite
+*.sqlite3
+logs/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/

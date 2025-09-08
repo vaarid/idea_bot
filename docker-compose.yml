@@ -1,0 +1,34 @@
+﻿version: '3.8'
+
+services:
+  idea-bot:
+    build: .
+    container_name: idea-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - ollama
+    networks:
+      - idea-bot-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - idea-bot-network
+
+volumes:
+  ollama_data:
+
+networks:
+  idea-bot-network:
+    driver: bridge
