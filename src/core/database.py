@@ -49,6 +49,49 @@ class IdeaRepository:
             Idea.id == idea_id,
             Idea.user_id == user_id
         ).first()
+    
+    def mark_idea_done(self, idea_id: int, user_id: int) -> bool:
+        """Отметить идею как выполненную."""
+        idea = self.get_idea_by_id(idea_id, user_id)
+        if idea:
+            idea.is_done = True
+            self.db.commit()
+            return True
+        return False
+    
+    def update_idea_content(self, idea_id: int, user_id: int, new_content: str) -> bool:
+        """Обновить содержание идеи."""
+        idea = self.get_idea_by_id(idea_id, user_id)
+        if idea:
+            idea.content = new_content
+            self.db.commit()
+            return True
+        return False
+    
+    def get_user_stats(self, user_id: int) -> dict:
+        """Получить статистику пользователя."""
+        total_ideas = self.db.query(Idea).filter(Idea.user_id == user_id).count()
+        done_ideas = self.db.query(Idea).filter(
+            Idea.user_id == user_id, 
+            Idea.is_done == True
+        ).count()
+        today_ideas = len(self.get_ideas_today(user_id))
+        
+        return {
+            'total_ideas': total_ideas,
+            'done_ideas': done_ideas,
+            'pending_ideas': total_ideas - done_ideas,
+            'today_ideas': today_ideas
+        }
+    
+    def get_pending_idea_by_number(self, user_id: int, number: int) -> Optional[Idea]:
+        """Получение невыполненной идеи по номеру в списке."""
+        pending_ideas = self.get_ideas_by_user(user_id, limit=10)
+        pending_ideas = [idea for idea in pending_ideas if not idea.is_done]
+        
+        if 1 <= number <= len(pending_ideas):
+            return pending_ideas[number - 1]
+        return None
 
 class UserSettingsRepository:
     """Репозиторий для работы с настройками пользователя."""

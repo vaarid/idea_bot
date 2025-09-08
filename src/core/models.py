@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from config.settings import settings
+import pytz
 
 Base = declarative_base()
 
@@ -18,9 +19,10 @@ class Idea(Base):
     content = Column(Text, nullable=False)
     category = Column(String(100), nullable=True)
     tags = Column(String(500), nullable=True)  # JSON строка с тегами
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
+    updated_at = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')), onupdate=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
     is_processed = Column(Boolean, default=False)
+    is_done = Column(Boolean, default=False)
     
     def __repr__(self):
         return f"<Idea(id={self.id}, user_id={self.user_id}, content='{self.content[:50]}...')>"
@@ -35,8 +37,8 @@ class UserSettings(Base):
     digest_time = Column(String(5), default="08:00")  # HH:MM
     timezone = Column(String(50), default="Europe/Moscow")
     streak_count = Column(Integer, default=0)
-    last_activity = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    last_activity = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
+    created_at = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
     
     def __repr__(self):
         return f"<UserSettings(user_id={self.user_id}, streak={self.streak_count})>"
