@@ -137,13 +137,13 @@ class BotHandlers:
             
             response = "📋 Ваши последние идеи:\n\n"
             
-            for idea in ideas:
+            for i, idea in enumerate(ideas, 1):
                 moscow_tz = pytz.timezone('Europe/Moscow')
                 moscow_time = idea.created_at.astimezone(moscow_tz)
                 date_str = moscow_time.strftime('%d.%m.%Y %H:%M')
                 content_preview = idea.content[:50] + "..." if len(idea.content) > 50 else idea.content
                 status = "✅" if idea.is_done else "⏳"
-                response += f"{status} ID {idea.id} ({date_str})\n{content_preview}\n\n"
+                response += f"{status} {i}. ({date_str})\n{content_preview}\n\n"
             
             # Добавляем кнопки для быстрого доступа
             keyboard = [
@@ -172,10 +172,13 @@ class BotHandlers:
             
             response = f" Идеи за сегодня ({len(ideas)} шт.):\n\n"
             
-            for idea in ideas:
-                time_str = idea.created_at.strftime('%H:%M')
+            for i, idea in enumerate(ideas, 1):
+                moscow_tz = pytz.timezone('Europe/Moscow')
+                moscow_time = idea.created_at.astimezone(moscow_tz)
+                time_str = moscow_time.strftime('%H:%M')
                 content_preview = idea.content[:60] + "..." if len(idea.content) > 60 else idea.content
-                response += f" {time_str}: {content_preview}\n\n"
+                status = "✅" if idea.is_done else "⏳"
+                response += f"{status} {i}. {time_str}: {content_preview}\n\n"
             
             await update.message.reply_text(response)
             
@@ -256,28 +259,22 @@ class BotHandlers:
         try:
             number = int(context.args[0])
             
-            # Сначала пробуем найти по номеру в списке невыполненных
-            idea = self.idea_repo.get_pending_idea_by_number(user_id, number)
+            # Ищем идею по номеру в списке пользователя
+            idea = self.idea_repo.get_idea_by_user_number(user_id, number)
             
             if idea:
+                if idea.is_done:
+                    await update.message.reply_text(f"✅ Идея #{number} уже отмечена как выполненная!")
+                    return
+                
                 # Отмечаем как выполненную
                 idea.is_done = True
                 self.idea_repo.db.commit()
                 
-                await update.message.reply_text(f"✅ Идея #{idea.id} отмечена как выполненная!\n\n💡 {idea.content}")
-                logger.info(f"Пользователь {user_id} отметил идею {idea.id} как выполненную")
+                await update.message.reply_text(f"✅ Идея #{number} отмечена как выполненная!\n\n💡 {idea.content}")
+                logger.info(f"Пользователь {user_id} отметил идею {idea.id} (номер {number}) как выполненную")
             else:
-                # Если не найдена по номеру, пробуем по ID
-                idea_id = number
-                success = self.idea_repo.mark_idea_done(idea_id, user_id)
-                
-                if success:
-                    idea = self.idea_repo.get_idea_by_id(idea_id, user_id)
-                    content = idea.content if idea else "Неизвестная идея"
-                    await update.message.reply_text(f"✅ Идея #{idea_id} отмечена как выполненная!\n\n💡 {content}")
-                    logger.info(f"Пользователь {user_id} отметил идею {idea_id} как выполненную")
-                else:
-                    await update.message.reply_text(f"❌ Идея #{number} не найдена или уже выполнена")
+                await update.message.reply_text(f"❌ Идея #{number} не найдена в вашем списке")
                 
         except ValueError:
             await update.message.reply_text("❌ Номер идеи должен быть числом")
@@ -367,12 +364,12 @@ class BotHandlers:
             
             response = "✅ Ваши выполненные идеи:\n\n"
             
-            for idea in done_ideas:
+            for i, idea in enumerate(done_ideas, 1):
                 moscow_tz = pytz.timezone('Europe/Moscow')
                 moscow_time = idea.created_at.astimezone(moscow_tz)
                 date_str = moscow_time.strftime('%d.%m.%Y %H:%M')
                 content_preview = idea.content[:50] + "..." if len(idea.content) > 50 else idea.content
-                response += f"🔹 ID {idea.id} ({date_str})\n{content_preview}\n\n"
+                response += f"🔹 {i}. ({date_str})\n{content_preview}\n\n"
             
             await update.message.reply_text(response)
             
@@ -522,18 +519,22 @@ class BotHandlers:
         user_id = update.effective_user.id
         
         try:
-            # Ищем невыполненную идею по номеру
-            idea = self.idea_repo.get_pending_idea_by_number(user_id, number)
+            # Ищем идею по номеру в списке пользователя
+            idea = self.idea_repo.get_idea_by_user_number(user_id, number)
             
             if idea:
+                if idea.is_done:
+                    await update.message.reply_text(f"✅ Идея #{number} уже отмечена как выполненная!")
+                    return
+                
                 # Отмечаем как выполненную
                 idea.is_done = True
                 self.idea_repo.db.commit()
                 
-                await update.message.reply_text(f"✅ Идея #{idea.id} отмечена как выполненная!\n\n💡 {idea.content}")
-                logger.info(f"Пользователь {user_id} отметил идею {idea.id} как выполненную через номер {number}")
+                await update.message.reply_text(f"✅ Идея #{number} отмечена как выполненная!\n\n💡 {idea.content}")
+                logger.info(f"Пользователь {user_id} отметил идею {idea.id} (номер {number}) как выполненную через номер")
             else:
-                await update.message.reply_text(f"❌ Идея #{number} не найдена или уже выполнена")
+                await update.message.reply_text(f"❌ Идея #{number} не найдена в вашем списке")
                 
         except Exception as e:
             logger.error(f"Ошибка обработки номера {number}: {e}")

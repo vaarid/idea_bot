@@ -1,33 +1,30 @@
-﻿version: '3.8'
-
-services:
+﻿services:
   idea-bot:
     build: .
     container_name: idea-bot
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_FILE=${LOG_FILE}
+      - DIGEST_TIME=${DIGEST_TIME}
+      - TIMEZONE=${TIMEZONE}
     volumes:
-      - ./logs:/app/logs
       - ./data:/app/data
-    depends_on:
-      - ollama
+      - ./logs:/app/logs
+      - ./temp_audio:/app/temp_audio
+      - ./backup:/app/backup
     networks:
       - idea-bot-network
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - idea-bot-network
-
-volumes:
-  ollama_data:
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   idea-bot-network:

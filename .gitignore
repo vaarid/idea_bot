@@ -124,3 +124,5 @@ data/
 *.db
 *.sqlite
 *.sqlite3
+temp_audio/*
+!temp_audio/.gitkeep

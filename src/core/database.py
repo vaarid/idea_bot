@@ -84,8 +84,16 @@ class IdeaRepository:
             'today_ideas': today_ideas
         }
     
+    def get_idea_by_user_number(self, user_id: int, number: int) -> Optional[Idea]:
+        """Получение идеи пользователя по номеру в его списке."""
+        user_ideas = self.get_ideas_by_user(user_id, limit=10)
+        
+        if 1 <= number <= len(user_ideas):
+            return user_ideas[number - 1]
+        return None
+    
     def get_pending_idea_by_number(self, user_id: int, number: int) -> Optional[Idea]:
-        """Получение невыполненной идеи по номеру в списке."""
+        """Получение невыполненной идеи по номеру в списке невыполненных."""
         pending_ideas = self.get_ideas_by_user(user_id, limit=10)
         pending_ideas = [idea for idea in pending_ideas if not idea.is_done]
         
