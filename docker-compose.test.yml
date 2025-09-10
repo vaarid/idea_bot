@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  idea-bot-test:
+    build: .
+    container_name: idea-bot-test
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN_TEST:-${BOT_TOKEN}}
+      - DATABASE_URL=sqlite:///data/test_idea_bot.db
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./temp_audio:/app/temp_audio
+    restart: "no"  # Не перезапускаем автоматически для тестов
+    networks:
+      - idea-bot-test-network
+
+networks:
+  idea-bot-test-network:
+    driver: bridge

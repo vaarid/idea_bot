@@ -126,3 +126,13 @@ data/
 *.sqlite3
 temp_audio/*
 !temp_audio/.gitkeep
+
+# Development workflow files
+docker-compose.dev.yml
+docker-compose.staging.yml
+.env.staging
+.env.dev
+scripts/
+backup/
+*.backup
+*.bak

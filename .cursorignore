@@ -9,3 +9,13 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Development workflow files
+docker-compose.dev.yml
+docker-compose.staging.yml
+.env.staging
+.env.dev
+scripts/
+backup/
+*.backup
+*.bak

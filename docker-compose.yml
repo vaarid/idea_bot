@@ -1,4 +1,6 @@
-﻿services:
+﻿name: idea-bot
+
+services:
   idea-bot:
     build: .
     container_name: idea-bot
@@ -12,6 +14,7 @@
       - LOG_FILE=${LOG_FILE}
       - DIGEST_TIME=${DIGEST_TIME}
       - TIMEZONE=${TIMEZONE}
+      - TZ=Europe/Moscow
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs

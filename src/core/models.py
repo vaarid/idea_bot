@@ -27,6 +27,23 @@ class Idea(Base):
     def __repr__(self):
         return f"<Idea(id={self.id}, user_id={self.user_id}, content='{self.content[:50]}...')>"
 
+class Task(Base):
+    """Модель задачи."""
+    
+    __tablename__ = "tasks"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    category = Column(String(100), nullable=True)
+    tags = Column(String(500), nullable=True)  # JSON строка с тегами
+    created_at = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
+    updated_at = Column(DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Moscow')), onupdate=lambda: datetime.now(pytz.timezone('Europe/Moscow')))
+    is_processed = Column(Boolean, default=False)
+    is_done = Column(Boolean, default=False)
+    
+    def __repr__(self):
+        return f"<Task(id={self.id}, user_id={self.user_id}, content='{self.content[:50]}...')>"
 class UserSettings(Base):
     """Настройки пользователя."""
     

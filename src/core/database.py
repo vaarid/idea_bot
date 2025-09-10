@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime, date
 from src.core.models import Idea, UserSettings, SessionLocal
 from src.utils.logger import logger
-
+from src.core.task_repository import TaskRepository
 class IdeaRepository:
     """Репозиторий для работы с идеями."""
     
